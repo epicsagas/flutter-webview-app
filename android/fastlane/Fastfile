@@ -1,0 +1,89 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Submit a new Alpha Build to playstore alpha track"
+  lane :alpha do
+#     highest_build_number = latest_build_number #private lane that returns lastest build number
+#     android_set_version_code(version_code: highest_build_number + 1)
+    gradle(task: "clean")
+    gradle(
+      task: 'bundle',
+      flavor: "prod",
+      build_type: 'release'
+    )
+    upload_to_play_store(
+      track: 'alpha',
+      version_code: 1,
+      version_name: '1.0.0'
+    )
+
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  end
+
+  desc "Promote Alpha to beta"
+  lane :promote_alpha_to_beta do
+    versions = google_play_track_version_codes(track: "alpha")
+    version_code = versions[0]
+
+    upload_to_play_store(
+        track: 'alpha',
+        track_promote_to: 'beta',
+        deactivate_on_promote: true,
+        skip_upload_apk: true,
+        skip_upload_metadata: false,
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_aab: true,
+        version_code: version_code
+    )
+  end
+
+  desc "Promote Alpha to Production"
+  lane :promote_alpha_to_production do
+    versions = google_play_track_version_codes(track: "alpha")
+    version_code = versions[0]
+
+    upload_to_play_store(
+      track: 'alpha',
+      track_promote_to: 'production',
+      deactivate_on_promote: true,
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_aab: true,
+      version_code: version_code
+    )
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(
+      task: 'bundle',
+      flavor: "prod",
+      build_type: 'release'
+    )
+    upload_to_play_store
+  end
+end
