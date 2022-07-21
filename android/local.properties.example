@@ -1,0 +1,10 @@
+sdk.dir=$HOME/Library/Android/sdk
+flutter.sdk=$HOME/fvm/versions/stable
+flutter.buildMode=debug
+flutter.versionName=1.0.0
+flutter.versionCode=1
+applicationId=com.webview
+storePassword=test
+keyPassword=test
+keyAlias=test
+storeFile=test
